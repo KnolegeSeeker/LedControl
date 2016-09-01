@@ -1,5 +1,8 @@
 #include <LedControl.h>
 
+#define setRand A0
+unsigned int NUM1,NUM2,NUM3,INCREMENT;
+
 int DIN = 12;
 int CS =  11;
 int CLK = 10;
@@ -63,25 +66,29 @@ void setup(){
  pinMode(addButton, INPUT);
  pinMode(subButton, INPUT);
  pinMode(verifyButton, INPUT);
+ pinMode(setRand,INPUT);
  lc.shutdown(0,false);       //The MAX72XX is in power-saving mode on startup
  lc.setIntensity(0,15);      // Set the brightness to maximum value
  lc.clearDisplay(0);         // and clear the display
  Serial.begin(9600);
  Serial.flush(); 
+ randomNumbers();
 }
-
+void randomNumbers(){
+    srand((unsigned)analogRead(A0));
+  do{
+    NUM1 = rand()%255;
+    INCREMENT = rand()%10;
+  }while(NUM1 == INCREMENT);
+  NUM2 = NUM1 + INCREMENT;
+}
 void verify() { // verifica se a resposta esta correta e inicia novo jogo randomicamente.
-    
-    if(resp == 6) {
-
-      correct = 1;
-    } else {
-      correct = -1;
-    }
+    correct=resp == (NUM2+INCREMENT)?1:-1;
     
     if(correct == 1) {
       printByte(pos);
       delay(1000);
+      randomNumbers();
     }
     if(correct == -1) {
       printByte(neg);
@@ -100,9 +107,15 @@ void printByte(byte character []) // imprime a imagem do byte no display.
     lc.setRow(0,i,character[i]);
   }
 }
+void printGame(uint8_t jogo,uint8_t row){
+  //for(register unsigned int cont = 0 ; cont < 8 ; cont ++)
+  uint8_t binario = (1UL<<jogo);
+  lc.setRow(0,row,binario);
+}
 void loop(){
 
-    printByte(jogo1);
+    printGame(NUM1,0);
+    printGame(NUM2,2);
 
     while(digitalRead(verifyButton) == 0) {
       if(digitalRead(addButton) == 1) {
@@ -119,7 +132,5 @@ void loop(){
         delay(150);
       }
     }
-
     verify();
-
 }

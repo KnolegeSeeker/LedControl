@@ -32,7 +32,7 @@ void setup(){
   pinMode(botMais,INPUT);
   pinMode(botMenos,INPUT);
   pinMode(botConfirma,INPUT);
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 unsigned int indexVetor=0;
 unsigned int dataConfirm=0;
@@ -51,7 +51,7 @@ void jogo(){
     
   }
 void loop(){
-  jogo();
+  /*jogo();
   if(digitalRead(botMais)==HIGH){
     while(digitalRead(botMais)==HIGH) {}dataConfirm++;
   }
@@ -80,14 +80,16 @@ void loop(){
           }
         }
       }
-    }
+    }*/  
+    registerWrite(colLatch,colData,colClock,7);
+    drawLike(1,0);
 }
 void drawLike(unsigned const int likes,unsigned const int cont){
 	if(likes == 1){
-      registerWrite(colLatch,colData,colClock,cont);
-			digitalWrite(latchPin,LOW);
+      /*digitalWrite(latchPin,LOW);
 			shiftOut(dataPin,clockPin,MSBFIRST,like[cont]);
-			digitalWrite(latchPin,HIGH);
+			digitalWrite(latchPin,HIGH);*/
+      sendData(like[cont]);
 	}else{
 			digitalWrite(latchPin,LOW);
 			shiftOut(dataPin,clockPin,MSBFIRST,like[7-cont]);
@@ -103,7 +105,7 @@ void sendData(unsigned const int data){
 void registerWrite(const int latch,const int data,const int clockP,const int iData){
   byte bitsToSend = (1UL<<iData);
   digitalWrite(latch,LOW);
-  shiftOut(data,clockP,MSBFIRST,bitsToSend);
+  shiftOut(data,clockP,LSBFIRST,bitsToSend);
   digitalWrite(latch,HIGH);
   //Para o contador começar de Tras para frente, basta mudar
   //MSBFIRST por LSBFIRST
